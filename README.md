@@ -227,3 +227,162 @@
 [Classe Device](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/Device.cs)
 
 [Classe AuxiliaryBatery](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/AuxiliaryBattery.cs)
+
+## 6. (12 punts) El fill del pastisser ha entrat a treballar al negoci. Ha vist com funciona la producció i veu que té molt marge de millora en el que fa el temps de produir un sol pastís. El seu pare no ho veu clar, ell sempre treballa de forma seqüencial, fins que no acaba una tasca no comença l’altre. El fill, en canvi, creu que hi ha passos de la recepta que es poden fer en paral·lel.  Realitza dues simulacions i mesura el temps de producció de cada una d’elles seguint els següent quadre de tasques:
+
+### Ingredients, temps i dependències
+| Tasques | Descripció | Temps (s) | Depèn de… |
+|---------|------------|-----------|-----------|
+| 1. Batre la massa | Barrejar farina, ous, sucre i mantega. | 8 | — |
+| 2. Pre‐escalfar forn | Arrencar el forn i arribar a 180 °C. | 10 | — |
+| 3. Enfornar | Coure la massa dins el forn. | 15 | 1 i 2 han d’haver acabat. |
+| 4. Preparar cobertura | Fondre xocolata i llet (ganache). | 5 | Es pot fer paral·lel al forn, però cal que acabi abans de glassejar. |
+| 5. Refredar base | Deixar el bescuit a temperatura ambient. | 4 | 3 (enfornar) |
+| 6. Glassejar | Cobrir el pastís amb el ganache de xocolata. | 3 | 4 i 5 |
+| 7. Decorar | Afegir espelmes i fruits. | 2 | 6 |
+
+
+### Requisits del programa:
+- Implementar cada simulació en un mètode diferent. El programa executarà una després de l’altre i comparà els temps totals.
+- Per a la simulació en paral·lel utilitzar la classe TASK. 
+- La mesura de temps s’ha d’utilitzar la classe StopWatch.
+- La programació ha de seguir la guia de Clean Code i extracció de codi óptims.
+
+[GitHubEx6](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici6/Program.cs)
+
+## 7. (4 punts) Analitza el següent codi, explica que pretén fer i determina si té errors o punts de millora per un ús correcte dels Threads. Enumera i explica els erros i les millores trobades. Reescriu el codi de forma correcte
+```
+using System;
+
+namespace SensorRace
+{
+    class Program
+    {
+        public static int[] Readings;
+
+        public static int GlobalMax = int.MinValue;
+        public static int GlobalMin = int.MaxValue;
+
+        static void Main(string[] args)
+        {
+            Console.Write("Introdueix el nombre de sensors: ");
+            int sensors = int.Parse(Console.ReadLine());
+            StopWatch sW = new Stopwacth();
+
+            Readings = new int[sensors];
+            Thread[] threads = new Thread[sensors];
+
+            Random rng = new Random();
+
+            for (int i = 0; i < sensors; i++){
+                int id = i;
+
+                threads[i] = new Thread(() =>
+                {
+                    for (int j = 0; j < 100000; j++){
+                        int value = rng.Next(-20, 51);
+                        sW.StarNew();
+
+                        Readings[id] = value;
+
+                        if (value > GlobalMax)
+                            GlobalMax = value;
+
+                        if (value < GlobalMin)
+                            GlobalMin = value;
+                    }
+                });
+
+                threads[i].Start();
+            }
+            Console.WriteLine($"Final – Max: {GlobalMax}, Min: {GlobalMin}");
+            Console.WriteLine($"Total Process time: {sW.Restart()}");
+        }
+    }
+}
+```
+### Errors i punts de millora
+
+- **Condicions de carrera en GlobalMax i GlobalMin**
+
+Els fils modifiquen les variables GlobalMax i GlobalMin sense cap mecanisme de sincronització, fet que pot provocar condicions de carrera. Es recomana l'ús de lock o Interlocked per garantir que aquestes operacions es realitzin de manera segura.
+
+- **Error en la classe StopWatch**
+
+La classe s'ha instanciat incorrectament com a StopWatch sW = new Stopwacth();, on Stopwacth està mal escrit. La classe correcta hauria de ser Stopwatch de System.Diagnostics.
+
+- **Error en el mètode StarNew()**
+
+El mètode StarNew(); no existeix a la classe Stopwatch. Probablement es volia utilitzar Start().
+
+- **Falta de sincronització en la inicialització de Random**
+
+L'ús compartit de Random rng = new Random(); en múltiples fils pot generar problemes. Es recomana utilitzar ThreadLocal<Random> per garantir que cada fil tingui la seva pròpia instància de Random.
+
+- **Falta de join en els fils**
+
+Després d'iniciar els fils, no es fa Join(), la qual cosa significa que el programa pot imprimir els resultats abans que tots els fils hagin finalitzat la seva execució.
+
+### Codi corregit
+
+```
+using System;
+using System.Diagnostics;
+using System.Threading;
+
+namespace SensorRace
+{
+    class Program
+    {
+        public static int[] Readings;
+        private static int GlobalMax = int.MinValue;
+        private static int GlobalMin = int.MaxValue;
+        private static object lockObject = new object();
+
+        static void Main(string[] args)
+        {
+            Console.Write("Introdueix el nombre de sensors: ");
+            int sensors = int.Parse(Console.ReadLine());
+            Stopwatch sW = new Stopwatch();
+
+            Readings = new int[sensors];
+            Thread[] threads = new Thread[sensors];
+
+            ThreadLocal<Random> rng = new ThreadLocal<Random>(() => new Random());
+
+            sW.Start();
+
+            for (int i = 0; i < sensors; i++)
+            {
+                int id = i;
+                threads[i] = new Thread(() =>
+                {
+                    for (int j = 0; j < 100000; j++)
+                    {
+                        int value = rng.Value.Next(-20, 51);
+                        Readings[id] = value;
+
+                        lock (lockObject)
+                        {
+                            if (value > GlobalMax)
+                                GlobalMax = value;
+                            if (value < GlobalMin)
+                                GlobalMin = value;
+                        }
+                    }
+                });
+
+                threads[i].Start();
+            }
+
+            foreach (Thread thread in threads)
+                thread.Join();
+
+            sW.Stop();
+
+            Console.WriteLine($"Final – Max: {GlobalMax}, Min: {GlobalMin}");
+            Console.WriteLine($"Total Process time: {sW.ElapsedMilliseconds} ms");
+        }
+    }
+}
+```
