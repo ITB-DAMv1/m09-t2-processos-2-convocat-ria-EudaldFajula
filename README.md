@@ -190,3 +190,39 @@
 **Per què?** La renderització de cada bloc o fragment de la imatge pot fer-se en paral·lel. És una tasca intensiva en càlcul i es beneficia molt de dividir-se entre múltiples nuclis o GPU.
 
 **Tecnologies típiques:** CUDA, OpenCL, shaders, paral·lelisme en GPU/CPU.
+
+## 4. (4 punts) Implementa un programa que llista tots els programes que s’estan executant en el teu Sistema Operatiu, mostra els fils que fa servir amb els seus ID’s. Guarda-ho en un arxiu de text (txt) i seguidament guarda el recompte total de processos oberts i del total de fils.
+
+[GitHubEx4](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici4/Program.cs)
+
+## 5. (12 punts) Una bateria auxiliar d’una capacitat d’energia M mil·liamperes, pot carregar un dispositiu al mateix temps. El dia del tall de llum es va fer servir fins a quedar-se sense buida. Implementa un programa que segons els dispositius que ha de carregar ens digui el temps que triga a buidar-se i quantes càrregues ha realitzat. Donem per fet que el temps de càrrega és immediat. Un dispositiu té un total N mil·liamperes que extreu de la bateria auxiliar i una velocitat de consum per X mil·liamperes per segon. Tots els dispositius i la bateria auxiliar comencen carregats al 100%.
+### Requisits del programa:
+- És requisit indispensable l’ús de THREADS i LOCK. Si es cau es pot fer servir, també, la classe MONITOR.
+- Per realitzar les mesures de temps s’ha de fer servir la classe STOPWATCH.
+- Programar seguint les directrius de Clean Code i crear les classes adient seguint la Programació Orientada a Objectes.
+- Un mateix dispositiu pot carregar diverses vegades de la bateria auxiliar.
+- En el moment que no hi ha bateria, cap dispositiu pot carregar-se.
+- La simulació finalitza quan la bateria no pot omplir al 100% un dispositiu. Tots els threads hauran de parar en aquell moment.
+### Realitza la simulació pels següents dos escenaris:
+
+- Per una bateria auxiliar amb capacitat de 100000 mil·liamperes
+
+| Dispositiu | Capacitat bateria (N) | Consum per segon (X) |
+|------------|-----------------------|----------------------|
+| 1 | 30000 | 10000 |
+| 2 | 20000 | 12000 |
+| 3 | 5000 | 1000 |
+
+- Per una bateria auxiliar amb capacitat de 100000 mil·liamperes
+
+| Dispositiu | Capacitat bateria (N) | Consum per segon (X) |
+|------------|-----------------------|----------------------|
+| 1 | 25000 | 23000 |
+| 2 | 20000 | 12000 |
+| 3 | 8000 | 1000 |
+| 4 | 10000 |1000 |
+
+[GitHubEx5](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/Program.cs)
+
+[Classe Device](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/Device.cs)
+[Classe AuxiliaryBatery](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/AuxiliaryBattery.cs)
