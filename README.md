@@ -225,4 +225,5 @@
 [GitHubEx5](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/Program.cs)
 
 [Classe Device](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/Device.cs)
+
 [Classe AuxiliaryBatery](https://github.com/EudaldFajula/t2-processos-2-convocatoria/blob/main/Exercici5/AuxiliaryBattery.cs)
